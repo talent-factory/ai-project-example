@@ -1,0 +1,52 @@
+# Code Owners für Branch Protection
+#
+# Diese Datei definiert, wer für welche Dateien/Verzeichnisse verantwortlich ist.
+# Bei Pull Requests werden die definierten Personen automatisch als Reviewer hinzugefügt.
+#
+# Syntax: <pattern> <owner1> <owner2> ...
+# Owners: @username oder @org/team-name
+#
+# Dokumentation: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# ============================================================================
+# WICHTIG: Ersetze @YOUR-GITHUB-USERNAME mit deinem echten GitHub-Username!
+# ============================================================================
+
+# Standard: Alle Dateien
+* @YOUR-GITHUB-USERNAME
+
+# Commands & Agents (kritisch für Projekt-Workflow)
+/.claude/ @YOUR-GITHUB-USERNAME
+/.augment/ @YOUR-GITHUB-USERNAME
+/.windsurf/ @YOUR-GITHUB-USERNAME
+/.github/prompts/ @YOUR-GITHUB-USERNAME
+
+# Projekt-Dokumentation
+/README.md @YOUR-GITHUB-USERNAME
+/CONTRIBUTING.md @YOUR-GITHUB-USERNAME
+/LICENSE @YOUR-GITHUB-USERNAME
+
+# PRDs (Product Requirements)
+/PRDs/ @YOUR-GITHUB-USERNAME
+
+# Projekt-Pläne
+/.plans/ @YOUR-GITHUB-USERNAME
+
+# GitHub Configuration
+/.github/ @YOUR-GITHUB-USERNAME
+
+# ============================================================================
+# Optional: Weitere Code Owners für spezifische Bereiche
+# ============================================================================
+
+# Beispiel: Frontend-Code
+# /src/components/ @frontend-team @YOUR-GITHUB-USERNAME
+
+# Beispiel: Backend-Code
+# /src/api/ @backend-team @YOUR-GITHUB-USERNAME
+
+# Beispiel: Dokumentation
+# /docs/ @docs-team @YOUR-GITHUB-USERNAME
+
+# Beispiel: CI/CD
+# /.github/workflows/ @devops-team @YOUR-GITHUB-USERNAME

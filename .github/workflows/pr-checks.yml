@@ -1,0 +1,178 @@
+name: Pull Request Checks
+
+# Läuft bei jedem PR auf main/develop
+on:
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  # Basis-Checks für alle PRs
+  basic-checks:
+    name: Basis-Validierung
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Prüfe Commit-Messages
+        run: |
+          echo "Prüfe Commit-Message-Format..."
+          # Beispiel: Prüfe ob Emoji Conventional Commit verwendet wird
+          git log --format=%s -1 | grep -E "^(✨|🐛|📚|💎|♻️|⚡|🧪|🔧|🚀|🔒|🌐|🎨|🔥|🚑|💚|⬆️|⬇️|📌|➕|➖|🔖|🚧)" || \
+          echo "⚠️ Warnung: Commit-Message folgt nicht dem Emoji-Format"
+
+      - name: Prüfe auf Secrets
+        run: |
+          echo "Prüfe auf versehentlich committete Secrets..."
+          # Einfache Prüfung auf häufige Secret-Muster
+          ! grep -r "api_key\s*=\s*['\"]" . --include="*.py" --include="*.js" --include="*.ts" || \
+          (echo "❌ Warnung: Möglicherweise Secrets im Code gefunden" && exit 1)
+
+      - name: Prüfe .gitignore
+        run: |
+          echo "Prüfe ob .gitignore vorhanden ist..."
+          test -f .gitignore || (echo "❌ .gitignore fehlt" && exit 1)
+          echo "✅ .gitignore vorhanden"
+
+  # Command-Validierung (falls Commands geändert wurden)
+  validate-commands:
+    name: Command-Validierung
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Prüfe Command-Struktur
+        run: |
+          echo "Prüfe Command-Dateien..."
+          # Prüfe ob alle Commands YAML-Frontmatter haben
+          for file in .claude/commands/**/*.md; do
+            if [ -f "$file" ]; then
+              head -1 "$file" | grep -q "^---$" || \
+              echo "⚠️ Warnung: $file hat kein YAML-Frontmatter"
+            fi
+          done
+          echo "✅ Command-Struktur-Check abgeschlossen"
+
+      - name: Prüfe Agent-Struktur
+        run: |
+          echo "Prüfe Agent-Dateien..."
+          # Prüfe ob alle Agents YAML-Frontmatter haben
+          for file in .claude/agents/**/*.md; do
+            if [ -f "$file" ]; then
+              head -1 "$file" | grep -q "^---$" || \
+              echo "⚠️ Warnung: $file hat kein YAML-Frontmatter"
+            fi
+          done
+          echo "✅ Agent-Struktur-Check abgeschlossen"
+
+  # Markdown-Validierung
+  markdown-lint:
+    name: Markdown Linting
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Markdown Lint
+        uses: DavidAnson/markdownlint-cli2-action@v15
+        with:
+          globs: |
+            **/*.md
+            !node_modules
+            !.plans
+          fix: false
+        continue-on-error: true  # Nur Warnung, kein Fehler
+
+  # Python-Checks (falls Python-Code vorhanden)
+  python-checks:
+    name: Python-Validierung
+    runs-on: ubuntu-latest
+    if: contains(github.event.pull_request.changed_files, '.py')
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Ruff
+        run: pip install ruff
+
+      - name: Ruff Check
+        run: ruff check . --output-format=github
+        continue-on-error: true
+
+      - name: Ruff Format Check
+        run: ruff format --check .
+        continue-on-error: true
+
+  # Node.js-Checks (falls JavaScript/TypeScript vorhanden)
+  nodejs-checks:
+    name: Node.js-Validierung
+    runs-on: ubuntu-latest
+    if: contains(github.event.pull_request.changed_files, '.js') || contains(github.event.pull_request.changed_files, '.ts')
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Dependencies
+        run: |
+          if [ -f package.json ]; then
+            npm ci
+          else
+            echo "Kein package.json gefunden, überspringe..."
+          fi
+        continue-on-error: true
+
+      - name: ESLint
+        run: |
+          if [ -f package.json ] && grep -q "eslint" package.json; then
+            npm run lint
+          else
+            echo "ESLint nicht konfiguriert, überspringe..."
+          fi
+        continue-on-error: true
+
+  # PR-Size-Check
+  pr-size-check:
+    name: PR-Größe prüfen
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Prüfe PR-Größe
+        run: |
+          CHANGED_FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | wc -l)
+          CHANGED_LINES=$(git diff --stat origin/${{ github.base_ref }}...HEAD | tail -1 | awk '{print $4+$6}')
+
+          echo "Geänderte Dateien: $CHANGED_FILES"
+          echo "Geänderte Zeilen: $CHANGED_LINES"
+
+          if [ "$CHANGED_FILES" -gt 50 ]; then
+            echo "⚠️ Warnung: PR ist groß ($CHANGED_FILES Dateien). Erwäge Aufteilung in kleinere PRs."
+          fi
+
+          if [ "$CHANGED_LINES" -gt 1000 ]; then
+            echo "⚠️ Warnung: PR ist groß ($CHANGED_LINES Zeilen). Erwäge Aufteilung in kleinere PRs."
+          fi
+
+# Alle Checks müssen erfolgreich sein (außer continue-on-error)

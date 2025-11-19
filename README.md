@@ -463,6 +463,61 @@ Dieses Projekt nutzt spezialisierte KI-Agenten für verschiedene Aufgaben:
 
 ---
 
+## Branch Protection & Repository-Sicherheit
+
+Dieses Repository verwendet **Branch Protection Rules**, um die Qualität und Sicherheit des Codes zu gewährleisten:
+
+### Geschützte Branches
+
+- ✅ **main** - Production-Branch (geschützt)
+- ✅ **develop** - Development-Branch (geschützt, falls verwendet)
+
+### Regeln
+
+❌ **Direkte Pushes sind nicht erlaubt**
+```bash
+git push origin main  # ❌ Fehler: Branch ist geschützt
+```
+
+✅ **Alle Änderungen müssen via Pull Request**
+```bash
+# 1. Feature-Branch erstellen
+git checkout -b feature/mein-feature
+
+# 2. Änderungen committen
+git commit -m "✨ feat: Mein Feature"
+
+# 3. Branch pushen
+git push origin feature/mein-feature
+
+# 4. Pull Request auf GitHub erstellen
+# 5. Code-Review abwarten
+# 6. Nach Approval: Merge via GitHub
+```
+
+### Setup
+
+**Repository-Owner**: Branch Protection muss auf GitHub eingerichtet werden
+
+📖 **Vollständige Anleitung**: [`.github/BRANCH_PROTECTION.md`](.github/BRANCH_PROTECTION.md)
+
+### Code Owners
+
+Alle Änderungen erfordern Review durch definierte Code Owners (siehe [`.github/CODEOWNERS`](.github/CODEOWNERS))
+
+### Automatische Checks
+
+Bei jedem Pull Request laufen automatisch:
+- ✅ Commit-Message-Format-Prüfung
+- ✅ Secrets-Scan
+- ✅ Command/Agent-Struktur-Validierung
+- ✅ Markdown-Linting
+- ✅ Code-Qualität-Checks (Python, Node.js)
+
+📖 **GitHub Actions**: [`.github/workflows/pr-checks.yml`](.github/workflows/pr-checks.yml)
+
+---
+
 ## Lizenz
 
 MIT License - siehe [LICENSE](LICENSE) Datei
