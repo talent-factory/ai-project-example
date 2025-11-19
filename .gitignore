@@ -1,0 +1,46 @@
+# Claude Code lokale Einstellungen
+.claude/settings.local.json
+
+# IDE & Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Java
+*.class
+*.jar
+*.war
+target/
+.gradle/
+build/
+
+# Logs
+*.log
+logs/
+
+# Temp files
+*.tmp
+*.temp
