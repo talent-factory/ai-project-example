@@ -1,5 +1,9 @@
 # AI Project Example - RAG Dokumenten-Analyse-System
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Version](https://img.shields.io/github/v/tag/talent-factory/ai-project-example?label=version)](https://github.com/talent-factory/ai-project-example/tags)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
+
 Ein Beispiel-Projekt, das zeigt, wie man mit Claude Code Slash-Commands aus dem [talent-factory/dotfiles](https://github.com/talent-factory/dotfiles) Repository ein komplettes Software-Projekt von der Planung bis zur Implementierung aufbaut.
 
 ## Überblick
